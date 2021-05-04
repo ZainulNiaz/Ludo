@@ -80,6 +80,20 @@ function image(img , sx , sy , sWidth, sHeight, dx, dy, dWidth, dHeight){
 
 }
 
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }
+}
 
 
 var bigRect = new Rectangle(0.3 * (window.innerWidth), 0.1 * (window.innerHeight), 0.8 * (window.innerHeight), 0.8 * (window.innerHeight), '#FFFFFF');
@@ -303,7 +317,7 @@ var mouse = {
   x: undefined,
   y: undefined
 }
-
+var dicerollsound = new sound("dicerollsound.mp3");
 var sx = 0;
 var sy = 0;
 // var sWidth= 64;
@@ -323,6 +337,8 @@ window.addEventListener('click',
       noofdiceclick++;
       moveafterclick = false;
       moveonechip = false;
+      dicerollsound.play();
+      setTimeout(dicerollsound.stop, 3000 );
     }
     mouse.x = event.x;
     mouse.y = event.y;
@@ -367,10 +383,12 @@ function movechips() {
       if (Math.abs(chipsArray[i].x - mouse.x) < chipsArray[i].radius && Math.abs(chipsArray[i].y - mouse.y) < chipsArray[i].radius && j * 4 < i + 1 && j * 4 > i - 4 && !moveafterclick && !moveonechip) {
         moveafterclick = true;
         moveonechip = true;
+        var chipsound = new sound("chipsound.mp3");
+        chipsound.play();
+        setTimeout(chipsound.stop, 3000 );
         if (chipsArrayposition[i] == 0 && Math.floor(sx / 64) == 5) {
           chipsArray[i].x = rectArray[13 * j + 1].x + smallsquaresize / 2;
           chipsArray[i].y = rectArray[13 * j + 1].y + smallsquaresize / 2;
-          // chipsArrayposition[i] += sx / 64;
           chipsArrayposition[i] += 13 * j;
           chipsArrayposition[i]++;
           noofmovesofchip[i]++;
@@ -469,6 +487,7 @@ function movechips() {
 
 // display whose turn it is //
 
+
 textx = bigRect.x - 0.4 * canvas.height;
 texty = bigRect.y;
 var turnrect = new Rectangle(textx, texty, 0.3 * canvas.height, 0.7 * canvas.height, '#e1701a');
@@ -514,6 +533,9 @@ function animate() {
   for (var i = 0; i < 16; i++) {
     circleArray[i].draw();
   }
+  for(var i=0;i<8;i++){
+    starArray[i].draw();
+  }
   for (var i = 0; i < 16; i++) {
     chipsArray[i].draw();
   }
@@ -540,13 +562,11 @@ function animate() {
     turnrecttext.text = 'red';
     sy = 64 * 1;
   }
-  for(var i=0;i<8;i++){
-    starArray[i].draw();
-  }
+
   c.drawImage(img, sx, sy, 64, 64, dicex, dicey, 64, 64);
   moving.move();
   turnrect.draw();
-
+  // mySound.play();
 
   turnrecttext.draw();
 
