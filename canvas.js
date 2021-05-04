@@ -5,6 +5,7 @@ canvas.height = window.innerHeight;
 var c = canvas.getContext('2d');
 
 
+
 function Rectangle(x, y, width, height, fillcolor) {
   this.x = x;
   this.y = y;
@@ -278,6 +279,31 @@ for (var i = 0; i < 4; i++) {
 
 }
 
+///taking player's name/////
+var playernamearray = [];
+for(var i=0;i<4;i++){
+  var player1 = prompt("Please enter your name", "Player "+ (i+1));
+  playernamearray.push(player1);
+
+}
+
+var textBox = [];
+var playernametextarray = [];
+for(var i =0;i<4;i++){
+  var textBoxx = bigRectArray[i].x;
+  var textBoxy = bigRectArray[i].y;
+  if(i<2){textBoxy -= 0.1*canvas.height;}
+  else{textBoxy+= bigRectArray[i].height;}
+
+  textBox.push(new Rectangle(textBoxx, textBoxy, bigRectArray[i].width, 0.1*canvas.height, '#77acf1'));
+  playernametextarray.push(new text(textBoxx + 0.5*bigRectArray[i].width, textBoxy+ 0.05*canvas.height, '30px serif', playernamearray[i], 'black'));
+}
+
+
+///taking player's name/////
+
+
+
 var chipsArray = [];
 var chipsArrayposition = [];
 var chipsArraycopy = [];
@@ -402,7 +428,6 @@ function movechips() {
           chipsArrayposition[i]++;
           noofmovesofchip[i] += Math.floor(sx / 64);
           noofmovesofchip[i]++;
-          console.log(noofmovesofchip[i]);
           chipsArray[i].x = rectArray[noofmovesofchip[i] + 5 * j].x + smallsquaresize / 2;
           chipsArray[i].y = rectArray[noofmovesofchip[i] + 5 * j].y + smallsquaresize / 2;
 
@@ -543,7 +568,10 @@ function animate() {
   for (var i = 0; i < 5; i++) {
     leaderboardtext[i].draw();
   }
-
+  for(var i=0;i<4;i++){
+    textBox[i].draw();
+    playernametextarray[i].draw();
+  }
   var img = new Image(); // Create new img element
   img.src = 'dice.png'; // Set source path
   if (noofdiceclick % 4 == 0) {
@@ -571,6 +599,8 @@ function animate() {
   turnrecttext.draw();
 
 }
+
+
 
 animate();
 
