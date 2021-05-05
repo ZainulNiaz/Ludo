@@ -96,7 +96,6 @@ function sound(src) {
     }
 }
 
-
 var bigRect = new Rectangle(0.3 * (window.innerWidth), 0.1 * (window.innerHeight), 0.8 * (window.innerHeight), 0.8 * (window.innerHeight), '#FFFFFF');
 bigRect.draw();
 
@@ -292,11 +291,11 @@ var playernametextarray = [];
 for(var i =0;i<4;i++){
   var textBoxx = bigRectArray[i].x;
   var textBoxy = bigRectArray[i].y;
-  if(i<2){textBoxy -= 0.1*canvas.height;}
+  if(i<2){textBoxy -= 0.05*canvas.height;}
   else{textBoxy+= bigRectArray[i].height;}
 
-  textBox.push(new Rectangle(textBoxx, textBoxy, bigRectArray[i].width, 0.1*canvas.height, '#77acf1'));
-  playernametextarray.push(new text(textBoxx + 0.5*bigRectArray[i].width, textBoxy+ 0.05*canvas.height, '30px serif', playernamearray[i], 'black'));
+  textBox.push(new Rectangle(textBoxx, textBoxy, 0.6*bigRectArray[i].width, 0.05*canvas.height, '#77acf1'));
+  playernametextarray.push(new text(textBoxx + 0.5*textBox[i].width, textBox[i].y+ 0.75*textBox[i].height, 0.8*textBox[i].height + 'px ' + 'serif', playernamearray[i], 'black'));
 }
 
 
@@ -353,6 +352,43 @@ var dicey = y - 64;
 var noofdiceclick = 0;
 var moveafterclick = true;
 var moveonechip = true;
+// addEventListener('click' , loadDice );
+var imgz = new Image(); // Create new img element
+var stringaddresstodice = "";
+imgz.src = stringaddresstodice; // Set source path
+var imageloaded = false;
+function loadDice(){
+  // Create XHR object
+  var xhr = new XMLHttpRequest();
+  // OPEN - type, url/file, async
+  xhr.open('GET', 'dice.txt' , true);
+
+  // Optional - used for loaders
+  xhr.onprogress = function() {
+  console.log('READYSTATE: ', xhr.readyState);
+
+  }
+
+
+  console.log('READYSTATE' , xhr.readyState);
+  xhr.onload = function() {
+    console.log('READYSTATE: ', xhr.readyState);
+    if(this.status == 200){
+      // console.log(this.responseText);
+      stringaddresstodice = this.responseText;
+    }
+  }
+
+  xhr.onerror = function() {
+    console.log('Request error...');
+  }
+
+// Sends Request
+xhr.send();
+}
+
+
+
 window.addEventListener('click',
   function(event) {
     if (event.x > dicex && event.x - dicex < 64 && event.y > dicey && event.y - dicey < 64 && moveafterclick) {
@@ -361,14 +397,23 @@ window.addEventListener('click',
       }
       sx = 64 * Math.floor(6 * Math.random());
       noofdiceclick++;
+
       moveafterclick = false;
       moveonechip = false;
       dicerollsound.play();
       setTimeout(dicerollsound.stop, 3000 );
+
+      var diceclicked =  Number.parseInt(localStorage.getItem("diceclicks"));
+      localStorage.setItem('diceclicks' , (diceclicked+1));
+
+      if(!imageloaded){loadDice(); imageloaded = true;}
+
     }
+
     mouse.x = event.x;
     mouse.y = event.y;
     console.log(mouse);
+    console.log(localStorage.getItem('diceclicks'));
     for (var i = 0; i < 16; i++) {
       console.log(noofmovesofchip[i]);
     }
@@ -380,6 +425,16 @@ window.addEventListener('click',
 var noofchipscompleted = [];
 var rankarray = [];
 var rankboolarray = [];
+
+for(var i=0;i<4;i++){
+  localStorage.setItem( 'winsof' + i , 0 );
+}
+
+if (localStorage.getItem("diceclicks")){ totaldiceclicks = Number.parseInt(localStorage.getItem("diceclicks"));}
+else{localStorage.setItem('diceclicks', 0);}
+
+
+
 var rank = 0;
 for (var i = 0; i < 4; i++) {
   rankarray.push(0);
@@ -434,6 +489,7 @@ function movechips() {
         } else {
           chipsArrayposition[i] += Math.floor(sx / 64);
           chipsArrayposition[i]++;
+
           chipsArray[i].x = rectArray[k % 52].x + smallsquaresize / 2;
           chipsArray[i].y = rectArray[k % 52].y + smallsquaresize / 2;
           noofmovesofchip[i] += Math.floor(sx / 64);
@@ -507,6 +563,9 @@ function movechips() {
 
   }
 
+
+
+
 }
 
 
@@ -517,7 +576,7 @@ textx = bigRect.x - 0.4 * canvas.height;
 texty = bigRect.y;
 var turnrect = new Rectangle(textx, texty, 0.3 * canvas.height, 0.7 * canvas.height, '#e1701a');
 turnrect.draw();
-var turntext = 'green';
+var turntext = 'dummytext';
 if (noofdiceclick % 4 == 0) {
   turntext = 'green';
 }
@@ -532,13 +591,15 @@ if (noofdiceclick % 4 == 3) {
 }
 
 texty += 0.1 * canvas.height;
-var turnrecttext = new text(textx + 0.15 * canvas.height, texty, '30px serif', turntext, 'black');
+var turnrecttext = new text(textx + 0.15 * canvas.height, texty, '30px' + 'px serif', turntext, 'black');
 turnrecttext.draw();
-
+texty += 0.1 * canvas.height;
+var diceclicktext = new text(textx + 0.15 * canvas.height, texty, '30px' + 'px serif',"no of dice clicks " +localStorage.getItem('diceclicks') , 'black');
 ////////////////----------/////////
 
 
 var moving = new movechips();
+
 
 function animate() {
   requestAnimationFrame(animate);
@@ -594,9 +655,13 @@ function animate() {
   c.drawImage(img, sx, sy, 64, 64, dicex, dicey, 64, 64);
   moving.move();
   turnrect.draw();
+
   // mySound.play();
 
   turnrecttext.draw();
+  // var diceclicktext = new text(textx + 0.15 * canvas.height, texty, '30px' + 'px serif',"no of dice clicks " +localStorage.getItem('diceclicks') , 'black');
+  diceclicktext.text = "no of dice clicks " +localStorage.getItem('diceclicks');
+  diceclicktext.draw();
 
 }
 
